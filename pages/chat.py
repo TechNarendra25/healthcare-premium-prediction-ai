@@ -33,11 +33,10 @@ def show():
 
     # Check Groq API key from .env
 try:
-    import streamlit as st
-    groq_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+    import streamlit as st_check
+    groq_key = st_check.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
 except Exception:
     groq_key = os.getenv("GROQ_API_KEY")
-
 if not groq_key:
 
     # Show profile context if prediction exists
