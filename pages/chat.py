@@ -1,9 +1,18 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from utils.engine import chat_with_llm
 
 load_dotenv()
+
+
+def _get_groq_key():
+    try:
+        key = st.secrets.get("GROQ_API_KEY")
+        if key:
+            return key
+    except Exception:
+        pass
+    return os.getenv("GROQ_API_KEY")
 
 
 def _build_system(form, result) -> str:
@@ -27,31 +36,63 @@ def _build_system(form, result) -> str:
     return base
 
 
-def show():
-    st.markdown('<h1 style="color:#1a1a2e">🤖 AI Chat Advisor</h1>', unsafe_allow_html=True)
-    st.markdown('<p style="color:#6c757d">Ask any health insurance question — powered by Groq AI (Free & Fast)</p>', unsafe_allow_html=True)
+def _call_groq(messages: list, system: str) -> str:
+    from groq import Groq
+    key = _get_groq_key()
+    client = Groq(api_key=key)
+    groq_messages = [{"role": "system", "content": system}] + messages
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=groq_messages,
+        temperature=0.5,
+        max_tokens=600,
+    )
+    return response.choices[0].message.content.strip()
 
-    # Check Groq API key from .env
-try:
-    import streamlit as st_check
-    groq_key = st_check.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
-except Exception:
-    groq_key = os.getenv("GROQ_API_KEY")
-if not groq_key:
+
+def show():
+    st.markdown("""
+    <div style="padding:1.5rem 0 0.5rem;">
+        <div style="font-size:2rem; font-weight:800; color:white;">
+            🤖 AI Chat Advisor
+        </div>
+        <div style="color:#a0aec0; margin-top:4px;">
+            Ask any health insurance question — powered by Groq AI (Free & Fast)
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Check API key
+    groq_key = _get_groq_key()
+    if not groq_key:
+        st.error("❌ GROQ_API_KEY not found!")
+        st.info("Add GROQ_API_KEY to your Streamlit Cloud secrets or .env file")
+        return
+
+    st.markdown("---")
 
     # Show profile context if prediction exists
     if "last_result" in st.session_state:
         result = st.session_state["last_result"]
         form   = st.session_state["last_form"]
-        st.success(f"✅ Using your profile — Premium: Rs.{result['premium']:,.0f} ({result['risk_label']} risk)")
+        st.success(
+            f"✅ Using your profile — "
+            f"Premium: ₹{result['premium']:,.0f} "
+            f"({result['risk_label']} risk)"
+        )
     else:
         form, result = None, None
-        st.info("💡 Go to **Predict Premium** first for personalised answers.")
+        st.info("💡 Go to **🔮 Predict Premium** first for personalised answers.")
 
     st.markdown("---")
 
     # Quick suggestion buttons
-    st.markdown("**Quick questions — click any:**")
+    st.markdown("""
+    <p style="color:white; font-weight:600; margin-bottom:0.5rem;">
+        Quick questions — click any:
+    </p>
+    """, unsafe_allow_html=True)
+
     suggestions = [
         "How can I lower my premium?",
         "What does Gold plan cover?",
@@ -64,14 +105,16 @@ if not groq_key:
     for i, q in enumerate(suggestions):
         if cols[i].button(q, key=f"sugg_{i}", use_container_width=True):
             st.session_state.setdefault("chat_history", [])
-            st.session_state["chat_history"].append({"role": "user", "content": q})
+            st.session_state["chat_history"].append(
+                {"role": "user", "content": q})
             system = _build_system(form, result)
             msgs   = [{"role": m["role"], "content": m["content"]}
                       for m in st.session_state["chat_history"]]
             with st.spinner("Thinking..."):
                 try:
-                    reply = chat_with_llm(msgs, system)
-                    st.session_state["chat_history"].append({"role": "assistant", "content": reply})
+                    reply = _call_groq(msgs, system)
+                    st.session_state["chat_history"].append(
+                        {"role": "assistant", "content": reply})
                 except Exception as e:
                     st.error(f"Error: {e}")
             st.rerun()
@@ -89,7 +132,8 @@ if not groq_key:
 
     # Chat input box
     if prompt := st.chat_input("Ask anything about health insurance..."):
-        st.session_state["chat_history"].append({"role": "user", "content": prompt})
+        st.session_state["chat_history"].append(
+            {"role": "user", "content": prompt})
 
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -101,9 +145,10 @@ if not groq_key:
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 try:
-                    reply = chat_with_llm(msgs, system)
+                    reply = _call_groq(msgs, system)
                     st.markdown(reply)
-                    st.session_state["chat_history"].append({"role": "assistant", "content": reply})
+                    st.session_state["chat_history"].append(
+                        {"role": "assistant", "content": reply})
                 except Exception as e:
                     st.error(f"Error: {e}")
 
