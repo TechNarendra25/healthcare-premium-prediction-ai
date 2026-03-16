@@ -8,15 +8,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Works both locally (.env) and on Streamlit Cloud (secrets)
-try:
-    import streamlit as st
-    GROQ_API_KEY = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
-except Exception:
-    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# Works on both local (.env) and Streamlit Cloud (st.secrets)
+def _get_groq_key():
+    try:
+        import streamlit as st
+        key = st.secrets.get("GROQ_API_KEY")
+        if key:
+            return key
+    except Exception:
+        pass
+    return os.getenv("GROQ_API_KEY")
+
+GROQ_API_KEY = _get_groq_key()
 MODEL_DIR    = os.path.join(os.path.dirname(__file__), "..", "artifacts")
 
-# ── Load models ───────────────────────────────────────────────────────────────
 def _load_artifacts():
     model_young  = joblib.load(os.path.join(MODEL_DIR, "model_young.joblib"))
     model_rest   = joblib.load(os.path.join(MODEL_DIR, "model_rest.joblib"))
@@ -26,7 +31,6 @@ def _load_artifacts():
 
 MODEL_YOUNG, MODEL_REST, SCALER_YOUNG, SCALER_REST = _load_artifacts()
 
-# ── Feature config ────────────────────────────────────────────────────────────
 RISK_SCORES = {
     "diabetes": 6,
     "heart disease": 8,
@@ -44,19 +48,6 @@ SCALE_COLS       = ["Age", "Number Of Dependants", "Income_Level",
                     "Income_Lakhs", "Insurance_Plan"]
 
 
-# ── Debug: check what scaler actually is ──────────────────────────────────────
-def _debug_artifacts():
-    print("MODEL_YOUNG type:", type(MODEL_YOUNG))
-    print("MODEL_REST type:",  type(MODEL_REST))
-    print("SCALER_YOUNG type:", type(SCALER_YOUNG))
-    print("SCALER_REST type:",  type(SCALER_REST))
-    if isinstance(SCALER_YOUNG, dict):
-        print("SCALER_YOUNG keys:", list(SCALER_YOUNG.keys()))
-
-_debug_artifacts()
-
-
-# ── Feature engineering ───────────────────────────────────────────────────────
 def _compute_risk_score(medical_history: str) -> float:
     parts = [p.strip().lower() for p in medical_history.split("&")]
     raw   = sum(RISK_SCORES.get(p, 0) for p in parts)
@@ -64,15 +55,14 @@ def _compute_risk_score(medical_history: str) -> float:
 
 
 def _scale_features(df: pd.DataFrame, scaler, cols: list) -> pd.DataFrame:
-    """Handle both sklearn scaler and dict-based scaler."""
     if hasattr(scaler, "transform"):
         df[cols] = scaler.transform(df[cols])
     elif isinstance(scaler, dict):
         for col in cols:
             if col in scaler:
-                min_val  = scaler[col]["min"]
-                max_val  = scaler[col]["max"]
-                df[col]  = (df[col] - min_val) / (max_val - min_val)
+                min_val = scaler[col]["min"]
+                max_val = scaler[col]["max"]
+                df[col] = (df[col] - min_val) / (max_val - min_val)
     return df
 
 
@@ -99,7 +89,6 @@ def _build_feature_vector(form: dict, scaler, feature_names: list) -> np.ndarray
     return df.values
 
 
-# ── ML Prediction ─────────────────────────────────────────────────────────────
 def predict_ml(form: dict) -> float:
     age = int(form["age"])
     if age <= 25:
@@ -112,9 +101,9 @@ def predict_ml(form: dict) -> float:
     return float(model.predict(X)[0])
 
 
-# ── Groq LLM Analysis ─────────────────────────────────────────────────────────
 def get_llm_analysis(form: dict, ml_premium: float) -> dict:
-    client = Groq(api_key=GROQ_API_KEY)
+    key = _get_groq_key()
+    client = Groq(api_key=key)
 
     system = """You are a senior health insurance actuary AI for India.
 You will receive a policyholder profile AND the exact premium already calculated by an XGBoost ML model.
@@ -164,9 +153,9 @@ Return the JSON analysis only."""
     return json.loads(raw)
 
 
-# ── Chat with Groq ────────────────────────────────────────────────────────────
 def chat_with_llm(messages: list, system: str) -> str:
-    client = Groq(api_key=GROQ_API_KEY)
+    key = _get_groq_key()
+    client = Groq(api_key=key)
 
     groq_messages = [{"role": "system", "content": system}] + messages
 
@@ -179,10 +168,10 @@ def chat_with_llm(messages: list, system: str) -> str:
     return response.choices[0].message.content.strip()
 
 
-# ── Full hybrid prediction ────────────────────────────────────────────────────
 def full_prediction(form: dict) -> dict:
-    if not GROQ_API_KEY:
-        raise ValueError("No GROQ_API_KEY found in .env file!")
+    key = _get_groq_key()
+    if not key:
+        raise ValueError("No GROQ_API_KEY found!")
     ml_premium = predict_ml(form)
     analysis   = get_llm_analysis(form, ml_premium)
     return {"premium": ml_premium, **analysis}
