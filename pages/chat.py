@@ -32,10 +32,13 @@ def show():
     st.markdown('<p style="color:#6c757d">Ask any health insurance question — powered by Groq AI (Free & Fast)</p>', unsafe_allow_html=True)
 
     # Check Groq API key from .env
-    if not os.getenv("GROQ_API_KEY"):
-        st.error("❌ GROQ_API_KEY not found! Please add it to your .env file.")
-        st.code("GROQ_API_KEY=gsk_your-key-here", language="bash")
-        return
+try:
+    import streamlit as st
+    groq_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+except Exception:
+    groq_key = os.getenv("GROQ_API_KEY")
+
+if not groq_key:
 
     # Show profile context if prediction exists
     if "last_result" in st.session_state:

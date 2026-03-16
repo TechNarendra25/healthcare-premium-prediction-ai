@@ -8,7 +8,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# Works both locally (.env) and on Streamlit Cloud (secrets)
+try:
+    import streamlit as st
+    GROQ_API_KEY = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+except Exception:
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 MODEL_DIR    = os.path.join(os.path.dirname(__file__), "..", "artifacts")
 
 # ── Load models ───────────────────────────────────────────────────────────────
