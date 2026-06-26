@@ -1,148 +1,249 @@
+
 # 🏥 Healthcare Premium Prediction AI
 
-A hybrid AI web application that predicts health insurance premiums using **XGBoost ML models + Groq AI (Llama 3.3 70B)**.
+<p align="center">
+  <img src="image1.png" width="100%">
+</p>
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.32+-red)
-![XGBoost](https://img.shields.io/badge/XGBoost-1.7+-green)
-![Groq AI](https://img.shields.io/badge/Groq-Llama%203.3%2070B-orange)
+<p align="center">
+  <strong>Hybrid AI System — XGBoost Precision + Groq AI Intelligence</strong>
+</p>
+
+<p align="center">
+  <a href="https://healthcare-premium-ai.streamlit.app">
+    <img src="https://img.shields.io/badge/🚀%20Live%20Demo-Try%20Now-success?style=for-the-badge">
+  </a>
+  <a href="https://github.com/TechNarendra25/healthcare-premium-prediction-ai">
+    <img src="https://img.shields.io/github/stars/TechNarendra25/healthcare-premium-prediction-ai?style=for-the-badge">
+  </a>
+</p>
+
+<p align="center">
+
+![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python)
+![Streamlit](https://img.shields.io/badge/Streamlit-red?style=for-the-badge&logo=streamlit)
+![XGBoost](https://img.shields.io/badge/XGBoost-green?style=for-the-badge)
+![Groq AI](https://img.shields.io/badge/Groq%20AI-Llama%203.3%2070B-orange?style=for-the-badge)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-AI-purple?style=for-the-badge)
+
+</p>
 
 ---
 
-## 🌐 Live Demo
-👉 [healthcare-premium-ai.streamlit.app](https://healthcare-premium-ai.streamlit.app)
+# 📖 Project Description
+
+**Healthcare Premium Prediction AI** is an end-to-end AI-powered health insurance premium prediction system that combines **Machine Learning** and **Generative AI**.
+
+The application predicts annual health insurance premiums using **XGBoost Regression Models** and provides intelligent explanations through **Groq AI (Llama 3.3 70B)**.
+
+The platform also performs:
+
+- 🎯 Risk Scoring
+- 📊 Data Analysis
+- 🤖 AI Chat Advisor
+- 💡 Premium Explanation
+- 📈 Interactive Insights
+- 🩺 Personalized Insurance Guidance
 
 ---
 
-## 🎯 What it does
+# ✨ Key Features
 
-This app takes a user's health and financial profile and:
-1. **Predicts** the exact annual health insurance premium using XGBoost
-2. **Explains** why the premium is that amount using Groq AI
-3. **Scores** the user's risk level (0-100)
-4. **Identifies** the top 4 key factors driving the premium
-5. **Advises** with actionable tips to reduce the premium
-6. **Answers** follow-up questions via AI Chat Advisor
+✅ Predict exact annual health insurance premium
+
+✅ Explain premium predictions using Groq AI
+
+✅ Risk scoring (0-100)
+
+✅ Identify premium-driving factors
+
+✅ Interactive data insights dashboard
+
+✅ Personalized AI Chat Advisor
+
+✅ Clean and modern Streamlit UI
 
 ---
 
-## 🏗️ Architecture
+# 🏗️ System Architecture
+
+```text
+User Profile
+      ↓
+XGBoost Prediction Model
+      ↓
+Premium Prediction
+      ↓
+Groq AI (Llama 3.3 70B)
+      ↓
+Risk Analysis + Explanation
+      ↓
+Interactive Streamlit Dashboard
 ```
-User Form → XGBoost ML Model → Groq AI (Llama 3.3 70B) → Streamlit UI
-```
-
-| Layer | Technology | Role |
-|-------|-----------|------|
-| Data | Excel dataset (50k rows) | Training data |
-| ML Model | XGBoost Regressor | Core prediction |
-| Segmentation | Age split (≤25 / >25) | Two separate models |
-| Feature Engineering | Pandas + Scikit-learn | Risk scoring, OHE, scaling |
-| LLM | Groq AI — Llama 3.3 70B | Explanation + Q&A |
-| UI | Streamlit | Web interface |
 
 ---
 
-## 📁 Project Structure
-```
+# 📊 Model Information
+
+| Metric | Value |
+|---------|--------|
+| Model Accuracy | 97.2% |
+| Training Records | 50,000+ |
+| Risk Factors | 12 |
+| ML Models | 2 |
+
+---
+
+# 🚀 Application Modules
+
+| Module | Description |
+|---------|-------------|
+| 🏠 Home Dashboard | Application overview and architecture |
+| 🔮 Predict Premium | Premium prediction using XGBoost |
+| 📊 Data Insights | Dataset analysis and insights |
+| 🤖 AI Chat Advisor | Conversational insurance advisor |
+| ℹ️ About | Technical documentation |
+
+---
+
+# 🛠️ Tech Stack
+
+| Category | Technology |
+|-----------|------------|
+| Programming | Python |
+| Machine Learning | XGBoost |
+| Data Processing | Pandas, NumPy |
+| Feature Engineering | Scikit-Learn |
+| Visualization | Plotly |
+| Web Framework | Streamlit |
+| Generative AI | Groq AI (Llama 3.3 70B) |
+| Deployment | Streamlit Cloud |
+
+---
+
+# 📁 Project Structure
+
+```text
 healthcare_premium_app/
-├── app.py                  ← Main Streamlit entry point
-├── requirements.txt        ← Python dependencies
-├── packages.txt            ← System dependencies
+│
+├── app.py
+├── requirements.txt
 ├── pages/
-│   ├── home.py             ← Landing page
-│   ├── predict.py          ← Prediction form + results
-│   ├── insights.py         ← EDA dashboard with Plotly
-│   ├── chat.py             ← AI Chat Advisor
-│   └── about.py            ← Architecture docs
+│   ├── home.py
+│   ├── predict.py
+│   ├── insights.py
+│   ├── chat.py
+│   └── about.py
+│
 ├── utils/
-│   └── engine.py           ← ML inference + Groq API
-└── artifacts/
-    ├── model_young.joblib  ← XGBoost for age ≤ 25
-    ├── model_rest.joblib   ← XGBoost for age > 25
-    ├── scaler_young.joblib ← MinMaxScaler young
-    └── scaler_rest.joblib  ← MinMaxScaler general
+│   └── engine.py
+│
+├── artifacts/
+│   ├── model_young.joblib
+│   ├── model_rest.joblib
+│   ├── scaler_young.joblib
+│   └── scaler_rest.joblib
+│
+└── data/
+    └── premiums.xlsx
 ```
 
 ---
 
-## 🚀 Run Locally
+# 📈 Features Used for Prediction
 
-### 1. Clone the repo
+| Feature | Impact |
+|---------|--------|
+| Age | Primary factor (≤25 vs >25) |
+| Smoking Status | Adds 20-40% premium loading |
+| Medical History | Heart disease, BP, Diabetes |
+| BMI Category | Obesity increases premium |
+| Insurance Plan | Bronze < Silver < Gold |
+| Income Level | Correlated with coverage |
+| Dependants | Higher dependants = higher premium |
+| Region | Regional pricing differences |
+
+---
+
+# 🌐 Live Demo
+
+🚀 https://healthcare-premium-ai.streamlit.app
+
+---
+
+# 🚀 Run Locally
+
+### Clone Repository
+
 ```bash
 git clone https://github.com/TechNarendra25/healthcare-premium-prediction-ai.git
 cd healthcare-premium-prediction-ai
 ```
 
-### 2. Create virtual environment
+### Create Virtual Environment
+
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-### 3. Install dependencies
+### Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Add your Groq API key
-Create a `.env` file:
-```
-GROQ_API_KEY=gsk_your-key-here
+### Add API Key
+
+Create `.env`
+
+```env
+GROQ_API_KEY=your_key_here
 ```
 
-Get your free key at 👉 [console.groq.com](https://console.groq.com)
+### Run Application
 
-### 5. Run the app
 ```bash
 streamlit run app.py
 ```
 
 ---
 
-## 📊 Features
+# 🎯 Future Enhancements
 
-| Page | Description |
-|------|-------------|
-| 🏠 Home | Overview and architecture |
-| 🔮 Predict Premium | XGBoost + Groq AI prediction |
-| 📊 Data Insights | EDA charts with Plotly |
-| 🤖 AI Chat Advisor | Conversational insurance advisor |
-| ℹ️ About | Tech stack and project details |
-
----
-
-## 🔬 Features Used for Prediction
-
-| Feature | Impact |
-|---------|--------|
-| Age | Primary factor — young (≤25) vs general (>25) |
-| Smoking Status | Regular smoking adds 20-40% loading |
-| Medical History | Heart disease (+8), Diabetes (+6), BP (+6) |
-| BMI Category | Obesity adds 15-25% loading |
-| Insurance Plan | Bronze < Silver < Gold |
-| Income Level | Correlated with coverage expectations |
-| Dependants | More dependants = higher premium |
-| Region | Regional pricing differences |
+- Multi-language Support
+- PDF Report Generation
+- Premium Comparison Dashboard
+- RAG-powered Insurance Assistant
+- Azure AI Integration
+- Personalized Policy Recommendation Engine
 
 ---
 
-## 🛠️ Tech Stack
+# 👨‍💻 Author
 
-- **Python 3.10+**
-- **Streamlit** — Web UI
-- **XGBoost** — ML prediction
-- **Scikit-learn** — Feature engineering
-- **Groq AI** — LLM explanation (Llama 3.3 70B — Free)
-- **Plotly** — Interactive charts
-- **Pandas / NumPy** — Data processing
+## Narendra Vispute
 
----
+🚀 Data Analyst | Data Scientist | AI & ML Enthusiast
 
-## 👨‍💻 Author
+📧 Email:
+**vispute.narendra03@gmail.com**
 
-**TechNarendra25**
-- GitHub: [@TechNarendra25](https://github.com/TechNarendra25)
+🔗 LinkedIn:
+https://www.linkedin.com/in/narendra-vispute/
+
+💻 GitHub:
+https://github.com/TechNarendra25
 
 ---
 
-## ⭐ Give it a star if you found it useful!
+# ⭐ Support
+
+If you found this project useful, please give it a ⭐ on GitHub.
+
+---
+
+<p align="center">
+Made with ❤️ using Python, XGBoost, Streamlit & Groq AI
+</p>
+
